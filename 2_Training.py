@@ -1,37 +1,4 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# # Computer Vision Nanodegree
-# 
-# ## Project: Image Captioning
-# 
-# ---
-# 
-# In this notebook, you will train your CNN-RNN model.  
-# 
-# You are welcome and encouraged to try out many different architectures and hyperparameters when searching for a good model.
-# 
-# This does have the potential to make the project quite messy!  Before submitting your project, make sure that you clean up:
-# - the code you write in this notebook.  The notebook should describe how to train a single CNN-RNN architecture, corresponding to your final choice of hyperparameters.  You should structure the notebook so that the reviewer can replicate your results by running the code in this notebook.  
-# - the output of the code cell in **Step 2**.  The output should show the output obtained when training the model from scratch.
-# 
-# This notebook **will be graded**.  
-# 
-# Feel free to use the links below to navigate the notebook:
-# - [Step 1](#step1): Training Setup
-# - [Step 2](#step2): Train your Model
-# - [Step 3](#step3): (Optional) Validate your Model
-
-# <a id='step1'></a>
-# ## Step 1: Training Setup
-# 
-# In this step of the notebook, you will customize the training of your CNN-RNN model by specifying hyperparameters and setting other options that are important to the training procedure.  The values you set now will be used when training your model in **Step 2** below.
-# 
-# You should only amend blocks of code that are preceded by a `TODO` statement.  **Any code blocks that are not preceded by a `TODO` statement should not be modified**.
-# 
-# ### Task #1
-# 
-# Begin by setting the following variables:
 # - `batch_size` - the batch size of each training batch.  It is the number of image-caption pairs used to amend the model weights in each training step. 
 # - `vocab_threshold` - the minimum word count threshold.  Note that a larger threshold will result in a smaller vocabulary, whereas a smaller threshold will include rarer words and result in a larger vocabulary.  
 # - `vocab_from_file` - a Boolean that decides whether to load the vocabulary from file. 
@@ -41,60 +8,6 @@
 # - `save_every` - determines how often to save the model weights.  We recommend that you set `save_every=1`, to save the model weights after each epoch.  This way, after the `i`th epoch, the encoder and decoder weights will be saved in the `models/` folder as `encoder-i.pkl` and `decoder-i.pkl`, respectively.
 # - `print_every` - determines how often to print the batch loss to the Jupyter notebook while training.  Note that you **will not** observe a monotonic decrease in the loss function while training - this is perfectly fine and completely expected!  You are encouraged to keep this at its default value of `100` to avoid clogging the notebook, but feel free to change it.
 # - `log_file` - the name of the text file containing - for every step - how the loss and perplexity evolved during training.
-# 
-# If you're not sure where to begin to set some of the values above, you can peruse [this paper](https://arxiv.org/pdf/1502.03044.pdf) and [this paper](https://arxiv.org/pdf/1411.4555.pdf) for useful guidance!  **To avoid spending too long on this notebook**, you are encouraged to consult these suggested research papers to obtain a strong initial guess for which hyperparameters are likely to work best.  Then, train a single model, and proceed to the next notebook (**3_Inference.ipynb**).  If you are unhappy with your performance, you can return to this notebook to tweak the hyperparameters (and/or the architecture in **model.py**) and re-train your model.
-# 
-# ### Question 1
-# 
-# **Question:** Describe your CNN-RNN architecture in detail. With this architecture in mind, how did you select the values of the variables in Task 1?  If you consulted a research paper detailing a successful implementation of an image captioning model, please provide the reference.
-# 
-# **Answer:** 
-# - I'm using the pre-trained `ResNet-50` architecture for CNN which is provided by Udacity and described in the Preliminaries notebook. 
-# - The RNN decoder follows the same architecture that was described in the paper referenced above **(arxiv:1411.4555)**. 
-#   <br>The paper specifies values for several hyperparameters `(vocab_threshold=5, embed_size=hidden_size=512)` that I used. 
-# - I also used a single hidden layer and no dropout and got reasonable results.
-# 
-# 
-# ### (Optional) Task #2
-# 
-# Note that we have provided a recommended image transform `transform_train` for pre-processing the training images, but you are welcome (and encouraged!) to modify it as you wish.  When modifying this transform, keep in mind that:
-# - the images in the dataset have varying heights and widths, and 
-# - if using a pre-trained model, you must perform the corresponding appropriate normalization.
-# 
-# ### Question 2
-# 
-# **Question:** How did you select the transform in `transform_train`?  If you left the transform at its provided value, why do you think that it is a good choice for your CNN architecture?
-# 
-# **Answer:** 
-# - I used the recommended image transform `transform_train` provided.
-# 
-# ### Task #3
-# 
-# Next, you will specify a Python list containing the learnable parameters of the model.  For instance, if you decide to make all weights in the decoder trainable, but only want to train the weights in the embedding layer of the encoder, then you should set `params` to something like:
-# ```
-# params = list(decoder.parameters()) + list(encoder.embed.parameters()) 
-# ```
-# 
-# ### Question 3
-# 
-# **Question:** How did you select the trainable parameters of your architecture?  Why do you think this is a good choice?
-# 
-# **Answer:** 
-# - I used `list(decoder.parameters()) + list(encoder.embed.parameters())` In the encoder section, we need to make the embedding layer learnable by containing important information about the image for the training step. Because the image captions are created by the RNN with values that contain meaningful information about the image in this layer. 
-# - As image captions are generated by decoder all parameters in decoder should be learnable, LSTM weights must be influenced by all parameters of decoder during the training.
-# 
-# ### Task #4
-# 
-# Finally, you will select an [optimizer](http://pytorch.org/docs/master/optim.html#torch.optim.Optimizer).
-# 
-# ### Question 4
-# 
-# **Question:** How did you select the optimizer used to train your model?
-# 
-# **Answer:** 
-# - I decided to use the `Adam optimizer`. I had perviously used it in previous projects, it's easy to implement _much easier than other algorithms_, computationally efficient, with little memory requirements.
-
-# In[1]:
 
 
 import torch
@@ -159,35 +72,6 @@ optimizer = torch.optim.Adam(params, lr=0.001)
 # Set the total number of training steps per epoch.
 total_step = math.ceil(len(data_loader.dataset.caption_lengths) / data_loader.batch_sampler.batch_size)
 
-
-# <a id='step2'></a>
-# ## Step 2: Train your Model
-# 
-# Once you have executed the code cell in **Step 1**, the training procedure below should run without issue.  
-# 
-# It is completely fine to leave the code cell below as-is without modifications to train your model.  However, if you would like to modify the code used to train the model below, you must ensure that your changes are easily parsed by your reviewer.  In other words, make sure to provide appropriate comments to describe how your code works!  
-# 
-# You may find it useful to load saved weights to resume training.  In that case, note the names of the files containing the encoder and decoder weights that you'd like to load (`encoder_file` and `decoder_file`).  Then you can load the weights by using the lines below:
-# 
-# ```python
-# # Load pre-trained weights before resuming training.
-# encoder.load_state_dict(torch.load(os.path.join('./models', encoder_file)))
-# decoder.load_state_dict(torch.load(os.path.join('./models', decoder_file)))
-# ```
-# 
-# While trying out parameters, make sure to take extensive notes and record the settings that you used in your various training runs.  In particular, you don't want to encounter a situation where you've trained a model for several hours but can't remember what settings you used :).
-# 
-# ### A Note on Tuning Hyperparameters
-# 
-# To figure out how well your model is doing, you can look at how the training loss and perplexity evolve during training - and for the purposes of this project, you are encouraged to amend the hyperparameters based on this information.  
-# 
-# However, this will not tell you if your model is overfitting to the training data, and, unfortunately, overfitting is a problem that is commonly encountered when training image captioning models.  
-# 
-# For this project, you need not worry about overfitting. **This project does not have strict requirements regarding the performance of your model**, and you just need to demonstrate that your model has learned **_something_** when you generate captions on the test data.  For now, we strongly encourage you to train your model for the suggested 3 epochs without worrying about performance; then, you should immediately transition to the next notebook in the sequence (**3_Inference.ipynb**) to see how your model performs on the test data.  If your model needs to be changed, you can come back to this notebook, amend hyperparameters (if necessary), and re-train the model.
-# 
-# That said, if you would like to go above and beyond in this project, you can read about some approaches to minimizing overfitting in section 4.3.1 of [this paper](http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7505636).  In the next (optional) step of this notebook, we provide some guidance for assessing the performance on the validation dataset.
-
-# In[2]:
 
 
 import torch.utils.data as data
@@ -268,19 +152,5 @@ for epoch in range(1, num_epochs+1):
 f.close()
 
 
-# <a id='step3'></a>
-# ## Step 3: (Optional) Validate your Model
-# 
-# To assess potential overfitting, one approach is to assess performance on a validation set.  If you decide to do this **optional** task, you are required to first complete all of the steps in the next notebook in the sequence (**3_Inference.ipynb**); as part of that notebook, you will write and test code (specifically, the `sample` method in the `DecoderRNN` class) that uses your RNN decoder to generate captions.  That code will prove incredibly useful here. 
-# 
-# If you decide to validate your model, please do not edit the data loader in **data_loader.py**.  Instead, create a new file named **data_loader_val.py** containing the code for obtaining the data loader for the validation data.  You can access:
-# - the validation images at filepath `'/opt/cocoapi/images/train2014/'`, and
-# - the validation image caption annotation file at filepath `'/opt/cocoapi/annotations/captions_val2014.json'`.
-# 
-# The suggested approach to validating your model involves creating a json file such as [this one](https://github.com/cocodataset/cocoapi/blob/master/results/captions_val2014_fakecap_results.json) containing your model's predicted captions for the validation images.  Then, you can write your own script or use one that you [find online](https://github.com/tylin/coco-caption) to calculate the BLEU score of your model.  You can read more about the BLEU score, along with other evaluation metrics (such as TEOR and Cider) in section 4.1 of [this paper](https://arxiv.org/pdf/1411.4555.pdf).  For more information about how to use the annotation file, check out the [website](http://cocodataset.org/#download) for the COCO dataset.
 
-# In[ ]:
-
-
-# (Optional) TODO: Validate your model.
 
