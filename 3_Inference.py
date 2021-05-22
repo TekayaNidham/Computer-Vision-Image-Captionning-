@@ -7,7 +7,7 @@ from pycocotools.coco import COCO
 from data_loader import get_loader
 from torchvision import transforms
 
-# TODO #1: Define a transform to pre-process the testing images.
+# Define a transform to pre-process the testing images.
 transform_test = transforms.Compose([ 
     transforms.Resize(256),                          # smaller edge of image resized to 256
     transforms.RandomCrop(224),                      # get 224x224 crop from random location
@@ -52,11 +52,11 @@ import os
 import torch
 from model import EncoderCNN, DecoderRNN
 
-# TODO #2: Specify the saved models to load.
+# Specify the saved models to load.
 encoder_file = "encoder-3.pkl" 
 decoder_file = "decoder-3.pkl"
 
-# TODO #3: Select appropriate values for the Python variables below.
+# Select appropriate values for the Python variables below.
 embed_size = 256
 hidden_size = 512
 
@@ -130,11 +130,6 @@ def get_prediction():
     print(sentence)
 
 
+get_prediction()
 
-
-get_prediction()
-get_prediction()
-get_prediction()
-get_prediction()
-get_prediction()
 
