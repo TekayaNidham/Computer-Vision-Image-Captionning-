@@ -1,6 +1,6 @@
 ## Project Overview
 
-In this project, you will create a neural network architecture to automatically generate captions from images.
+In this project we create a neural network architecture to automatically generate captions from images.
 
 After using the Microsoft Common Objects in COntext [(MS COCO) dataset](http://cocodataset.org/#home) to train your network, you will test your network on novel images!
 
